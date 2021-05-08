@@ -1,4 +1,4 @@
-public class Dog {
+/*public class Dog {
 	String fName = "", lName = "", dogName = "", dogBreed = "";
 	
 	public Dog() {
@@ -53,3 +53,4 @@ public class Dog {
 		
 	}
 }
+*/

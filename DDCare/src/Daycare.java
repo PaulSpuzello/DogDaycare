@@ -1,14 +1,11 @@
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import com.mysql.jdbc.Statement;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,10 +15,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
+import java.awt.EventQueue;
+
 import javax.swing.UIManager;
 import java.awt.Font;
 
@@ -35,9 +33,11 @@ public class Daycare {
 	private JTextField textBreed;
 
 	/**
+	 * @throws SQLException
 	 * @wbp.parser.entryPoint
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -69,12 +69,12 @@ public class Daycare {
 
 		frame = new JFrame();
 		frame.getContentPane().setBackground(UIManager.getColor("Button.shadow"));
-		frame.setBounds(100, 100, 553, 472);
+		frame.setBounds(100, 100, 640, 472);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(229, 11, 298, 411);
+		scrollPane.setBounds(228, 16, 386, 411);
 		frame.getContentPane().add(scrollPane);
 
 		table = new JTable();
@@ -83,7 +83,7 @@ public class Daycare {
 		scrollPane.setViewportView(table);
 
 		// Name columns and set into model, set the model into the table
-		Object[] columns = { "First Name", "Last Name", "Dog name", "Dog Breed" };
+		Object[] columns = { "ID", "First Name", "Last Name", "Dog name", "Dog Breed" };
 		DefaultTableModel model = new DefaultTableModel();
 		model.setColumnIdentifiers(columns);
 		table.setModel(model);
@@ -134,15 +134,14 @@ public class Daycare {
 
 		JButton btnAddDog = new JButton("Add Dog");
 
+		// Add a dog by using input text into the database
 		btnAddDog.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String fName, lName, dogName, dogBreed;
-				Connection conn = null;
 
 				try {
-					Object[] row = new Object[4];
 
-					conn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/daycare", "root",
+					Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/daycare", "root",
 							"Kt1Gks0T66FY3HLxZ4BR");
 
 					if (conn != null) {
@@ -153,6 +152,7 @@ public class Daycare {
 						dogName = textDogName.getText();
 						dogBreed = textBreed.getText();
 
+						// Prepared statement, good against SQL injections
 						PreparedStatement sql = conn.prepareStatement(
 								"INSERT INTO daycare (fname, lname, dogname, dogbreed) VALUES (?,?,?,?)");
 
@@ -160,13 +160,6 @@ public class Daycare {
 						sql.setString(2, lName);
 						sql.setString(3, dogName);
 						sql.setString(4, dogBreed);
-
-						// row[0] = fName;
-						// row[1] = lName;
-						// row[2] = dogName;
-						// row[3] = dogBreed;
-
-						// model.addRow(row);
 
 						sql.execute();
 
@@ -188,28 +181,28 @@ public class Daycare {
 		frame.getContentPane().add(lblRemoveADog);
 
 		JButton btnRemove = new JButton("Remove");
+
+		// Button to remove dog using the selected row ID to delete the data with that
+		// ID in the database
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int i = table.getSelectedRow();
+				String id = table.getValueAt(i, 0).toString();
 
-				// The user must click the row to delete, otherwise won't work. If it is clicked
-				// after a row selected, it deletes that row
-				// if (i == 0) {
-				// JOptionPane.showMessageDialog(frame, "List cannot be empty once a game is
-				// entered");
-				// }
 				if (i >= 0) {
-					model.removeRow(i);
 
 					try {
-						String sql = "DELTE FROM daycare WHERE dogname = ?";
 
-						Connection conn = null;
-						conn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/daycare", "root",
+						Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/daycare", "root",
 								"Kt1Gks0T66FY3HLxZ4BR");
-						PreparedStatement ps = conn.prepareStatement(sql);
-						ps.setString(1, String.valueOf(i));
 
+						String sql = "DELETE FROM daycare WHERE id=?";
+						PreparedStatement ps = conn.prepareStatement(sql);
+						ps.setString(1, id);
+
+						ps.execute();
+
+						System.out.println("Pet removed!");
 					} catch (Exception e) {
 
 					}
@@ -229,28 +222,33 @@ public class Daycare {
 		frame.getContentPane().add(lblViewDogs);
 
 		JButton btnView = new JButton("View");
+
+		// View all current dogs by looping through a result set (returns everything
+		// from a database)
 		btnView.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Connection conn = null;
 
 				model.setRowCount(0);
-				
+
 				String query = "SELECT * FROM daycare";
 
 				try {
-					conn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/daycare", "root",
+
+					Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/daycare", "root",
 							"Kt1Gks0T66FY3HLxZ4BR");
+
 					Statement stmt = (Statement) conn.createStatement();
 					ResultSet rs = stmt.executeQuery(query);
 
 					while (rs.next()) {
 
-						String a = rs.getString("fname");
-						String b = rs.getString("lname");
-						String c = rs.getString("dogname");
-						String d = rs.getString("dogbreed");
+						String a = rs.getString("id");
+						String b = rs.getString("fname");
+						String c = rs.getString("lname");
+						String d = rs.getString("dogname");
+						String e = rs.getString("dogbreed");
 
-						model.addRow(new Object[] { a, b, c, d });
+						model.addRow(new Object[] { a, b, c, d, e });
 
 						table.setModel(model);
 
