@@ -37,7 +37,7 @@ public class Daycare {
 	 * @wbp.parser.entryPoint
 	 */
 	public static void main(String[] args) throws SQLException {
-
+		System.out.println("hello");
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -52,6 +52,7 @@ public class Daycare {
 
 	/**
 	 * Create the application.
+	 * 
 	 * 
 	 * @wbp.parser.entryPoint
 	 */
