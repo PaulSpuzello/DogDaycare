@@ -5,8 +5,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-import com.mysql.jdbc.Statement;
-
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
@@ -16,6 +14,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -37,7 +36,6 @@ public class Daycare {
 	 * @wbp.parser.entryPoint
 	 */
 	public static void main(String[] args) throws SQLException {
-		System.out.println("hello");
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -67,7 +65,7 @@ public class Daycare {
 	 * @wbp.parser.entryPoint
 	 */
 	private void initialize() {
-
+		
 		frame = new JFrame();
 		frame.getContentPane().setBackground(UIManager.getColor("Button.shadow"));
 		frame.setBounds(100, 100, 640, 472);
@@ -138,29 +136,29 @@ public class Daycare {
 		// Add a dog by using input text into the database
 		btnAddDog.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				Dog dog = new Dog();
 				String fName, lName, dogName, dogBreed;
 
 				try {
-
+System.out.println("W");
 					Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/daycare", "root",
 							"Kt1Gks0T66FY3HLxZ4BR");
 
 					if (conn != null) {
 						System.out.println("Connected successfully");
-
-						fName = textFName.getText();
-						lName = textLName.getText();
-						dogName = textDogName.getText();
-						dogBreed = textBreed.getText();
+						dog.setfName(String.valueOf(textFName));
+						dog.setlName(String.valueOf(textLName));
+						dog.setDogName(String.valueOf(textDogName));
+						dog.setDogBreed(String.valueOf(textBreed));
 
 						// Prepared statement, good against SQL injections
 						PreparedStatement sql = conn.prepareStatement(
 								"INSERT INTO daycare (fname, lname, dogname, dogbreed) VALUES (?,?,?,?)");
 
-						sql.setString(1, fName);
-						sql.setString(2, lName);
-						sql.setString(3, dogName);
-						sql.setString(4, dogBreed);
+						sql.setString(1, dog.getfName());
+						sql.setString(2, dog.getlName());
+						sql.setString(3, dog.getDogName());
+						sql.setString(4, dog.getDogBreed());
 
 						sql.execute();
 
