@@ -1,4 +1,3 @@
-
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -57,6 +56,7 @@ public class Daycare {
 	public Daycare() {
 		initialize();
 	}
+	
 
 	/**
 	 * Initialize the contents of the frame.
@@ -137,24 +137,23 @@ public class Daycare {
 		btnAddDog.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Dog dog = new Dog();
-				String fName, lName, dogName, dogBreed;
 
 				try {
-System.out.println("W");
+					
 					Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/daycare", "root",
 							"Kt1Gks0T66FY3HLxZ4BR");
 
 					if (conn != null) {
 						System.out.println("Connected successfully");
-						dog.setfName(String.valueOf(textFName));
-						dog.setlName(String.valueOf(textLName));
-						dog.setDogName(String.valueOf(textDogName));
-						dog.setDogBreed(String.valueOf(textBreed));
+						dog.setfName(String.valueOf(textFName.getText()));
+						dog.setlName(String.valueOf(textLName.getText()));
+						dog.setDogName(String.valueOf(textDogName.getText()));
+						dog.setDogBreed(String.valueOf(textBreed.getText()));
 
 						// Prepared statement, good against SQL injections
 						PreparedStatement sql = conn.prepareStatement(
 								"INSERT INTO daycare (fname, lname, dogname, dogbreed) VALUES (?,?,?,?)");
-
+						
 						sql.setString(1, dog.getfName());
 						sql.setString(2, dog.getlName());
 						sql.setString(3, dog.getDogName());
@@ -165,7 +164,7 @@ System.out.println("W");
 						System.out.println("Pet inserted!");
 					}
 				} catch (Exception e) {
-					System.out.println("Not connected to a database or there has been an error");
+					System.out.println(e);
 				}
 
 			}
@@ -230,12 +229,11 @@ System.out.println("W");
 				model.setRowCount(0);
 
 				String query = "SELECT * FROM daycare";
-
+				
 				try {
-
+					
 					Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/daycare", "root",
 							"Kt1Gks0T66FY3HLxZ4BR");
-
 					Statement stmt = (Statement) conn.createStatement();
 					ResultSet rs = stmt.executeQuery(query);
 
