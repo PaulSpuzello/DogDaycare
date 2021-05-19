@@ -1,3 +1,3 @@
 # DogDaycare
 
-An application that can add/remove a dog from a database (I used MySQL Workbench) and can view to see an updated list or can sort ascending or descending.
+A Java application I made in my spare time that acts as a list of dogs at the daycare. You can add/remove/view/sort the dog name or the owner's name. Used the local host and MySQL Workbench for the Database.
